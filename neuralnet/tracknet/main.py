@@ -1,3 +1,7 @@
+
+"""
+BY Aashis Khanal
+"""
 BASE_PROJECT_DIR = '/home/saeid/tracknet/ature'
 
 import os

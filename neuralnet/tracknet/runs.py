@@ -7,7 +7,7 @@ DRIVE = {
         'num_channels': 1,
         'num_classes': 2,
         'batch_size': 16,
-        'epochs': 200,
+        'epochs': 1,
         'learning_rate': 0.001,
         'patch_shape': (51, 51),
         'use_gpu': False,
@@ -15,7 +15,7 @@ DRIVE = {
         'shuffle': True,
         'checkpoint_file': 'TrackNet-DRIVE.chk.tar',
         'log_frequency': 50,
-        'validation_frequency': 2,
+        'validation_frequency': 1,
         'mode': 'train',
         'parallel_trained': False
     },
