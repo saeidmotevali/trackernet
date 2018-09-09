@@ -18,7 +18,6 @@ class TracknetTrainer(NNTrainer):
         self.patch_shape = self.run_conf.get('Params').get('patch_shape')
         self.patch_offset = self.run_conf.get('Params').get('patch_offset')
 
-
     def train(self, optimizer=None, data_loader=None, validation_loader=None):
 
         if validation_loader is None:
@@ -36,7 +35,6 @@ class TracknetTrainer(NNTrainer):
 
                 optimizer.zero_grad()
                 outputs = self.model(inputs)
-                _, predicted = torch.max(outputs, 1)
 
                 loss = torch.dist(outputs, labels, p=1)
                 loss.backward()
@@ -44,7 +42,7 @@ class TracknetTrainer(NNTrainer):
 
                 running_loss += float(loss.item())
                 current_loss = loss.item()
-                p, r, f1, a = score_acc.reset().add_tensor(labels, predicted).get_prf1a()
+                p, r, f1, a = score_acc.reset().get_prf1a()
                 if (i + 1) % self.log_frequency == 0:  # Inspect the loss of every log_frequency batches
                     current_loss = running_loss / self.log_frequency if (i + 1) % self.log_frequency == 0 \
                         else (i + 1) % self.log_frequency
@@ -73,33 +71,34 @@ class TracknetTrainer(NNTrainer):
             all_score = ScoreAccumulator()
 
             for loader in data_loaders:
-                current_score = ScoreAccumulator()
+                current_loss = 0.0
                 img_obj = loader.dataset.image_objects[0]
-                segmented_map, labels_acc = [], []
-
+                all_predicted, all_labels, all_pos = [], [], []
                 for i, data in enumerate(loader, 0):
                     inputs, labels = data['inputs'].to(self.device), data['labels'].to(self.device)
+                    positions = data['POS']
                     outputs = self.model(inputs)
-                    _, predicted = torch.max(outputs, 1)
-
-                    current_score.add_tensor(labels, predicted)
-                    all_score.accumulate(current_score)
-                    if mode is 'test':
-                        segmented_map += outputs.clone().cpu().numpy().tolist()
-                        labels_acc += labels.clone().cpu().numpy().tolist()
+                    loss = torch.dist(outputs, labels, p=1)
+                    current_loss += loss
+                    if mode == 'train':
+                        all_predicted += outputs.clone().cpu().numpy().tolist()
+                        all_labels += labels.clone().cpu().numpy().tolist()
+                        all_pos += positions.clone().cpu().numpy().tolist()
 
                 self.flush(logger, ','.join(
-                    str(x) for x in [img_obj.file_name, 1, self.checkpoint['epochs'], 0] + current_score.get_prf1a()))
+                    str(x) for x in [img_obj.file_name, 1, self.checkpoint['epochs'], 0, current_loss / (i + 1)]))
 
                 if mode is 'test':
-                    segmented_map = np.exp(np.array(segmented_map)[:, 1, :, :]).squeeze()
-                    segmented_map = np.array(segmented_map * 255, dtype=np.uint8)
-                    # labels_acc = np.array(np.array(labels_acc).squeeze()*255, dtype=np.uint8)
+                    all_predicted = np.array(np.ceil(np.array(all_predicted)), dtype=int)
+                    all_labels = np.array(all_labels, dtype=int)
+                    all_pos = np.array(all_pos, dtype=int)
 
-                    maps_img = imgutils.merge_patches(patches=segmented_map, image_size=img_obj.working_arr.shape,
-                                                      patch_size=self.patch_shape,
-                                                      offset_row_col=self.patch_offset)
-                    IMG.fromarray(maps_img).save(os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + '.png'))
+                    estimated = np.zeros_like((img_obj.working_array.shape[0], img_obj.working_array.shape[1], 3))
+                    estimated[:, :, 0][all_predicted[:, 0], all_predicted[:, 1]] = 255
+                    estimated[:, :, 1][all_labels[:, 0], all_labels[:, 1]] = 255
+                    estimated[:, :, 2][all_pos[:, 0], all_pos[:, 1]] = 255
+
+                    IMG.fromarray(estimated).save(os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + '.png'))
 
                 print(img_obj.file_name + ' PRF1A: ', all_score.get_prf1a())
 

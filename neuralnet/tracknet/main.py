@@ -10,12 +10,12 @@ os.chdir(BASE_PROJECT_DIR)
 
 import torch
 import torch.optim as optim
-from neuralnet.unet.model import UNet
-from neuralnet.unet.unet_dataloader import PatchesGenerator
-from neuralnet.unet.unet_trainer import UNetNNTrainer
+from neuralnet.tracknet.model import TrackNet
+from neuralnet.tracknet.tracknet_dataloader import PatchesGenerator
+from neuralnet.tracknet.tracknet_trainer import TracknetTrainer
 import torchvision.transforms as transforms
 from neuralnet.utils import auto_split as asp
-from neuralnet.unet.runs import DRIVE
+from neuralnet.tracknet.runs import DRIVE
 
 RUNS = [DRIVE]
 
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             images_src_dir=R.get('Dirs').get('image'),
             to_file=os.path.join(R.get('Dirs').get('logs'), R.get('Params').get('checkpoint_file') + '.json'))
 
-        model = UNet(R['Params']['num_channels'], R['Params']['num_classes'])
+        model = TrackNet(R['Params']['patch_width'][0], R['Params']['num_channels'], R['Params']['num_classes'])
         optimizer = optim.Adam(model.parameters(), lr=R['Params']['learning_rate'])
         if R['Params']['distribute']:
             model = torch.nn.DataParallel(model)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             optimizer = optim.Adam(model.module.parameters(), lr=R['Params']['learning_rate'])
 
         try:
-            drive_trainer = UNetNNTrainer(model=model, run_conf=R)
+            drive_trainer = TracknetTrainer(model=model, run_conf=R)
 
             if R.get('Params').get('mode') == 'train':
                 train_loader = PatchesGenerator.get_loader(run_conf=R, images=splits['train'], transforms=transform)

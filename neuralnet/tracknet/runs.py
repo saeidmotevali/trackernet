@@ -6,18 +6,16 @@ DRIVE = {
     'Params': {
         'num_channels': 1,
         'num_classes': 2,
-        'batch_size': 6,
+        'batch_size': 16,
         'epochs': 200,
         'learning_rate': 0.001,
-        'patch_shape': (388, 388),
-        'patch_offset': (150, 150),
-        'patch_pad': [(92, 92), (92, 92)],
+        'patch_shape': (51, 51),
         'use_gpu': True,
-        'distribute': True,
+        'distribute': False,
         'shuffle': True,
-        'checkpoint_file': 'UNET-DRIVE.chk.tar',
-        'log_frequency': 5,
-        'validation_frequency': 10,
+        'checkpoint_file': 'TrackNet-DRIVE.chk.tar',
+        'log_frequency': 50,
+        'validation_frequency': 2,
         'mode': 'train',
         'parallel_trained': False
     },
@@ -29,7 +27,7 @@ DRIVE = {
     },
 
     'Funcs': {
-        'truth_getter': lambda file_name: file_name.split('_')[0] + '_manual1.gif',
-        'mask_getter': lambda file_name: file_name.split('_')[0] + '_mask.gif'
+        'truth_getter': lambda file_name: file_name.split('.')[0] + '_manual1.gif',
+        'mask_getter': lambda file_name: file_name.split('.')[0].split('_')[-1]
     }
 }
