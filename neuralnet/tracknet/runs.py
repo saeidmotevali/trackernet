@@ -10,7 +10,7 @@ DRIVE = {
         'epochs': 200,
         'learning_rate': 0.001,
         'patch_shape': (51, 51),
-        'use_gpu': True,
+        'use_gpu': False,
         'distribute': False,
         'shuffle': True,
         'checkpoint_file': 'TrackNet-DRIVE.chk.tar',
@@ -20,7 +20,7 @@ DRIVE = {
         'parallel_trained': False
     },
     'Dirs': {
-        'image': 'data' + sep + 'DRIVE' + sep + 'images',
+        'image': 'data' + sep + 'DRIVE' + sep + 'mats',
         'mask': 'data' + sep + 'DRIVE' + sep + 'mask',
         'truth': 'data' + sep + 'DRIVE' + sep + 'manual',
         'logs': 'data' + sep + 'DRIVE' + sep + 'unet_logs'
@@ -28,6 +28,6 @@ DRIVE = {
 
     'Funcs': {
         'truth_getter': lambda file_name: file_name.split('.')[0] + '_manual1.gif',
-        'mask_getter': lambda file_name: file_name.split('.')[0].split('_')[-1]
+        'mask_getter': lambda file_name: file_name.split('.')[0].split('_')[-1] + '_test_mask.gif'
     }
 }

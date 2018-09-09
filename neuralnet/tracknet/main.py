@@ -1,5 +1,4 @@
-BASE_PROJECT_DIR = '/home/akhanal1/ature'
-# BASE_PROJECT_DIR = '/home/ak/PycharmProjects/ature'
+BASE_PROJECT_DIR = '/home/saeid/tracknet/ature'
 
 import os
 import sys
@@ -34,7 +33,7 @@ if __name__ == "__main__":
             images_src_dir=R.get('Dirs').get('image'),
             to_file=os.path.join(R.get('Dirs').get('logs'), R.get('Params').get('checkpoint_file') + '.json'))
 
-        model = TrackNet(R['Params']['patch_width'][0], R['Params']['num_channels'], R['Params']['num_classes'])
+        model = TrackNet(R['Params']['patch_shape'][0], R['Params']['num_channels'], R['Params']['num_classes'])
         optimizer = optim.Adam(model.parameters(), lr=R['Params']['learning_rate'])
         if R['Params']['distribute']:
             model = torch.nn.DataParallel(model)
