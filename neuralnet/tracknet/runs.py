@@ -16,7 +16,7 @@ DRIVE = {
         'checkpoint_file': 'TrackNet-DRIVE.chk.tar',
         'log_frequency': 50,
         'validation_frequency': 1,
-        'mode': 'train',
+        'mode': 'test',
         'parallel_trained': False
     },
     'Dirs': {

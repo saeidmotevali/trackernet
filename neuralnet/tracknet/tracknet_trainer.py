@@ -83,7 +83,7 @@ class TracknetTrainer(NNTrainer):
                     outputs = self.model(inputs)
                     loss = torch.dist(outputs, labels, p=1)
                     current_loss += loss
-                    if mode == 'train':
+                    if mode == 'test':
                         all_predicted += outputs.clone().cpu().numpy().tolist()
                         all_labels += labels.clone().cpu().numpy().tolist()
                         all_pos += positions.clone().cpu().numpy().tolist()
@@ -96,12 +96,15 @@ class TracknetTrainer(NNTrainer):
                     all_labels = np.array(all_labels, dtype=int)
                     all_pos = np.array(all_pos, dtype=int)
 
-                    estimated = np.zeros_like((img_obj.working_array.shape[0], img_obj.working_array.shape[1], 3))
+                    all_labels = all_labels + all_pos
+                    # print('###:>',all_predicted.shape, len(0))
+                    estimated = np.zeros((img_obj.working_arr.shape[0], img_obj.working_arr.shape[1], 3))
                     estimated[:, :, 0][all_predicted[:, 0], all_predicted[:, 1]] = 255
                     estimated[:, :, 1][all_labels[:, 0], all_labels[:, 1]] = 255
                     estimated[:, :, 2][all_pos[:, 0], all_pos[:, 1]] = 255
 
-                    IMG.fromarray(estimated).save(os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + '.png'))
+                    IMG.fromarray(estimated.astype(np.uint8)).save(
+                        os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + '.png'))
 
                 print(img_obj.file_name + ' PRF1A: ', all_score.get_prf1a())
 
