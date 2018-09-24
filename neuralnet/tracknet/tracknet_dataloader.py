@@ -49,10 +49,10 @@ class PatchesGenerator(Generator):
             u_pos_input = V[vessel_pathidx, :]
             print('vessel_pathidx', vessel_pathidx)
             # b = np.where(A[:, vessel_pathidx])[0]
-
-            # change to for loop
-
-            b = np.where(A[vessel_pathidx, :])[0]
+            b = vessel_pathidx.copy()
+            for i, src in enumerate(vessel_pathidx):
+                b[i] = np.where(A[src, :])[0][0]
+            # b = np.where(A[vessel_pathidx, :])[0]
             print('b', b)
             b_pos_output = V[b, :]
 

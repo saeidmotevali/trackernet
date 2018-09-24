@@ -42,12 +42,12 @@ class TracknetTrainer(NNTrainer):
 
                 optimizer.zero_grad()
                 outputs = self.model(inputs)
-                loss1 = torch.dist(outputs, labels, p=2)
+                # loss1 = torch.dist(outputs, labels, p=2)
                 # loss.backward()
                 # optimizer.step()
                 # current_loss = loss.item() / labels.numel()
                 # running_loss += current_loss
-                print(loss1)
+                # print(loss1)
                 print(outputs.shape)
                 print(labels.shape)
 
