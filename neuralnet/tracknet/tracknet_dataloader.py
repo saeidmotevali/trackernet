@@ -35,6 +35,8 @@ class PatchesGenerator(Generator):
             A = mat_file.get_graph('A')
             I = mat_file.get_image('I')
 
+            print('V', V)
+
             img_obj = Image()
             img_obj.file_name = img_file
             img_obj.image_arr = I
@@ -43,15 +45,27 @@ class PatchesGenerator(Generator):
             self.image_objects[ID] = img_obj
 
             path_index = mat_file.get_graph('pathNode')
-            vessel_pathidx = np.where(path_index)[0]
-            u_pos = V[vessel_pathidx, :]
-            A = A
-            b = np.where(A[vessel_pathidx, :])[0]
-            b_pos = V[b, :]
+            vessel_pathidx = np.where(path_index==1)[0]
+            u_pos_input = V[vessel_pathidx, :]
+            print('vessel_pathidx', vessel_pathidx)
+            # b = np.where(A[:, vessel_pathidx])[0]
 
-            u_pos = u_pos.astype(np.int)
-            b_pos = b_pos.astype(np.int)
-            for (i, j), output in zip(u_pos, b_pos - u_pos):
+            # change to for loop
+
+            b = np.where(A[vessel_pathidx, :])[0]
+            print('b', b)
+            b_pos_output = V[b, :]
+
+            u_pos_input = u_pos_input.astype(np.int)
+            b_pos_output = b_pos_output.astype(np.int)
+            print('----------------<<<<<<>>>>>>>>---------------')
+            # print(u_pos_input - b_pos_output)
+            print('----------------????????????????---------------')
+            print(b_pos_output.shape)
+            for (i, j), output in zip(u_pos_input, b_pos_output - u_pos_input):
+                print('>>>>>>>>>>>', i, j, output)
+                # print('<<<<<<<<<<<', u_pos_input)
+                # print('<<<>>>>', b_pos_output)
                 row_from, row_to = i - self.k_half, i + self.k_half + 1
                 col_from, col_to = j - self.k_half, j + self.k_half + 1
                 if row_from < 0 or col_from < 0:
@@ -65,6 +79,8 @@ class PatchesGenerator(Generator):
 
     def __getitem__(self, index):
         ID, (i, j), out = self.indices[index]
+        print('i , j, out', i, j, out)
+
         row_from, row_to = i - self.k_half, i + self.k_half + 1
         col_from, col_to = j - self.k_half, j + self.k_half + 1
 

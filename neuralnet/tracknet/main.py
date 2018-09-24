@@ -37,7 +37,7 @@ if __name__ == "__main__":
             images_src_dir=R.get('Dirs').get('image'),
             to_file=os.path.join(R.get('Dirs').get('logs'), R.get('Params').get('checkpoint_file') + '.json'))
 
-        model = TrackNet(R['Params']['patch_shape'][0], R['Params']['num_channels'], R['Params']['num_classes'])
+        model = TrackNet(R['Params']['patch_shape'][0], R['Params']['num_channels'])
         optimizer = optim.Adam(model.parameters(), lr=R['Params']['learning_rate'])
         if R['Params']['distribute']:
             model = torch.nn.DataParallel(model)
@@ -51,6 +51,7 @@ if __name__ == "__main__":
                 train_loader = PatchesGenerator.get_loader(run_conf=R, images=splits['train'], transforms=transform)
                 val_loader = PatchesGenerator.get_loader_per_img(run_conf=R, images=splits['validation'],
                                                                  mode='validation')
+                print('start traning ')
                 drive_trainer.train(optimizer=optimizer, data_loader=train_loader, validation_loader=val_loader)
 
             drive_trainer.resume_from_checkpoint(parallel_trained=R.get('Params').get('parallel_trained'))
