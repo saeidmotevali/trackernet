@@ -7,6 +7,8 @@ import sys
 import numpy as np
 import torch
 from PIL import Image as IMG
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 
 import sklearn
 from scipy import spatial
@@ -26,6 +28,7 @@ class TracknetTrainer(NNTrainer):
         self.patch_shape = self.run_conf.get('Params').get('patch_shape')
         self.patch_offset = self.run_conf.get('Params').get('patch_offset')
         self.counter = 1
+        self.loss_sum = [[] for _ in range(4)]
 
     def train(self, optimizer=None, data_loader=None, validation_loader=None):
 
@@ -42,22 +45,26 @@ class TracknetTrainer(NNTrainer):
 
                 optimizer.zero_grad()
                 outputs = self.model(inputs)
+                # print(outputs)
                 # loss1 = torch.dist(outputs, labels, p=2)
                 # loss.backward()
                 # optimizer.step()
                 # current_loss = loss.item() / labels.numel()
                 # running_loss += current_loss
                 # print(loss1)
-                print(outputs.shape)
-                print(labels.shape)
+                # print(outputs.shape)
+                # print(outputs)
+                # print(labels.shape)
+                # print(labels)
+                # outputs_input_dis = outputs - data['POS'].float()
+                # label_input_dis = labels - data['POS'].float()
+                # print('outputs_input_dis', outputs_input_dis)
+                # print('label_input_dis', label_input_dis)
 
-                outputs_input_dis = outputs - data['POS'].float()
-                label_input_dis = labels - data['POS'].float()
-                print('outputs_input_dis', outputs_input_dis.shape)
-                print('label_input_dis', label_input_dis.shape)
-
-                loss = - F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1).mean()
-                print('loss', loss)
+                # loss = - F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1).mean()
+                # loss = - F.cosine_similarity(outputs, labels, dim=1).mean()
+                loss = F.mse_loss(outputs, labels)
+                # print('loss', loss)
                 loss.backward()
                 optimizer.step()
                 current_loss = loss
@@ -99,11 +106,16 @@ class TracknetTrainer(NNTrainer):
                     inputs, labels = data['inputs'].to(self.device), data['labels'].to(self.device)
                     positions = data['POS']
                     outputs = self.model(inputs)
+                    # print(outputs)
                     outputs = outputs.float() + positions.float()
                     # loss = torch.dist(outputs, labels, p=1)
 
                     outputs_input_dis = outputs - data['POS'].float()
                     label_input_dis = labels - data['POS'].float()
+                    # print('outputs_input_dis\n')
+                    # print(outputs[0])
+                    # print('label_input_dis\n')
+                    # print(labels[0])
                     loss = F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1)
                     current_loss = sum(loss) / float(len(loss))
                     img_loss += current_loss
@@ -130,10 +142,36 @@ class TracknetTrainer(NNTrainer):
                         pass
                     estimated[:, :, 1][all_labels[:, 0], all_labels[:, 1]] = 255
                     # estimated[:, :, 1][all_pos[:, 0], all_pos[:, 1]] = 255
-
-                    IMG.fromarray(estimated.astype(np.uint8)).save(
+                    # print(type(estimated))
+                    # estimated = estimated.T
+                    IMG.fromarray(estimated.astype(np.uint8)).rotate(90).save(
                         os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + str(self.counter) + '.png'))
                     print(img_obj.file_name + ' LOSS: ', all_loss / total_images)
-                    self.counter  += 1
+                    print('couter', self.counter)
+                    # self.loss_sum[re.findall(img_obj.file_name)] += all_loss / total_images
+                    self.counter += 1
+                    print('self.counter % 4', self.counter % 4)
+                    self.loss_sum[self.counter % 4].append(all_loss / total_images)
+                    print(self.loss_sum)
+        print('loss_sum', self.loss_sum)
+        # lines = plt.plot(self.loss_sum)
+        # plt.setp(lines, color='r', linewidth=2.0)
+        # plt.show()
+        plt.figure()
+
+        # color = iter(cm.rainbow(np.linspace(0, 1, n)))
+        # for i in range(n):
+        #     c = next(color)
+        #     ax1.plot(x, y, c=c)
+        colorlist = ['blue', 'red', 'green', 'yellow']
+        for i ,j in enumerate (self.loss_sum):
+            lines = plt.plot(j)
+            # c = next(color)
+            plt.setp(lines, linewidth=2.0, color = colorlist[i])
+        # plt.show()
+        plt.savefig('/home/saeid/tracknet/ature/data/DRIVE/unet_logs/plot.png')
+        # # plt.legend()
+        #
+
         if mode is 'train':
             self._save_if_better(force_checkpoint=force_checkpoint, score=all_loss / total_images)

@@ -35,7 +35,7 @@ class PatchesGenerator(Generator):
             A = mat_file.get_graph('A')
             I = mat_file.get_image('I')
 
-            print('V', V)
+            # print('V', V)
 
             img_obj = Image()
             img_obj.file_name = img_file
@@ -53,17 +53,17 @@ class PatchesGenerator(Generator):
             for i, src in enumerate(vessel_pathidx):
                 b[i] = np.where(A[src, :])[0][0]
             # b = np.where(A[vessel_pathidx, :])[0]
-            print('b', b)
+            # print('b', b)
             b_pos_output = V[b, :]
 
             u_pos_input = u_pos_input.astype(np.int)
             b_pos_output = b_pos_output.astype(np.int)
-            print('----------------<<<<<<>>>>>>>>---------------')
-            # print(u_pos_input - b_pos_output)
-            print('----------------????????????????---------------')
-            print(b_pos_output.shape)
+            # print('----------------<<<<<<>>>>>>>>---------------')
+            # # print(u_pos_input - b_pos_output)
+            # print('----------------????????????????---------------')
+            # print(b_pos_output.shape)
             for (i, j), output in zip(u_pos_input, b_pos_output - u_pos_input):
-                print('>>>>>>>>>>>', i, j, output)
+                # print('>>>>>>>>>>>', i, j, output)
                 # print('<<<<<<<<<<<', u_pos_input)
                 # print('<<<>>>>', b_pos_output)
                 row_from, row_to = i - self.k_half, i + self.k_half + 1
@@ -79,7 +79,7 @@ class PatchesGenerator(Generator):
 
     def __getitem__(self, index):
         ID, (i, j), out = self.indices[index]
-        print('i , j, out', i, j, out)
+        # print('i , j, out', i, j, out)
 
         row_from, row_to = i - self.k_half, i + self.k_half + 1
         col_from, col_to = j - self.k_half, j + self.k_half + 1
