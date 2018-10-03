@@ -60,9 +60,10 @@ class TracknetTrainer(NNTrainer):
                 # label_input_dis = labels - data['POS'].float()
                 # print('outputs_input_dis', outputs_input_dis)
                 # print('label_input_dis', label_input_dis)
-
+                # use Cosine to calculate loss
                 # loss = - F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1).mean()
                 # loss = - F.cosine_similarity(outputs, labels, dim=1).mean()
+                # use MSE to calculate loss
                 loss = F.mse_loss(outputs, labels)
                 # print('loss', loss)
                 loss.backward()
@@ -110,13 +111,15 @@ class TracknetTrainer(NNTrainer):
                     outputs = outputs.float() + positions.float()
                     # loss = torch.dist(outputs, labels, p=1)
 
-                    outputs_input_dis = outputs - data['POS'].float()
-                    label_input_dis = labels - data['POS'].float()
+                    # outputs_input_dis = outputs - data['POS'].float()
+                    # label_input_dis = labels - data['POS'].float()
                     # print('outputs_input_dis\n')
                     # print(outputs[0])
                     # print('label_input_dis\n')
                     # print(labels[0])
-                    loss = F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1)
+                    # loss = F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1)
+                    # use MSE to calculate loss
+                    loss = F.mse_loss(outputs, labels)
                     current_loss = sum(loss) / float(len(loss))
                     img_loss += current_loss
                     all_loss += current_loss
@@ -144,8 +147,12 @@ class TracknetTrainer(NNTrainer):
                     # estimated[:, :, 1][all_pos[:, 0], all_pos[:, 1]] = 255
                     # print(type(estimated))
                     # estimated = estimated.T
+                    # When we want to save different version of the image
                     IMG.fromarray(estimated.astype(np.uint8)).rotate(90).save(
                         os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + str(self.counter) + '.png'))
+                    # When we want to save just one file
+                    # IMG.fromarray(estimated.astype(np.uint8)).rotate(90).save(
+                    #     os.path.join(self.log_dir, img_obj.file_name.split('.')[0] + '.png'))
                     print(img_obj.file_name + ' LOSS: ', all_loss / total_images)
                     print('couter', self.counter)
                     # self.loss_sum[re.findall(img_obj.file_name)] += all_loss / total_images
