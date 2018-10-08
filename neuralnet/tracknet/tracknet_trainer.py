@@ -45,17 +45,12 @@ class TracknetTrainer(NNTrainer):
 
                 optimizer.zero_grad()
                 outputs = self.model(inputs)
-                # print(outputs)
+                # print(inputs)
                 # loss1 = torch.dist(outputs, labels, p=2)
                 # loss.backward()
                 # optimizer.step()
                 # current_loss = loss.item() / labels.numel()
                 # running_loss += current_loss
-                # print(loss1)
-                # print(outputs.shape)
-                # print(outputs)
-                # print(labels.shape)
-                # print(labels)
                 # outputs_input_dis = outputs - data['POS'].float()
                 # label_input_dis = labels - data['POS'].float()
                 # print('outputs_input_dis', outputs_input_dis)
@@ -64,6 +59,11 @@ class TracknetTrainer(NNTrainer):
                 # loss = - F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1).mean()
                 # loss = - F.cosine_similarity(outputs, labels, dim=1).mean()
                 # use MSE to calculate loss
+                # print('inputs', inputs)
+                # print('input Shape', inputs.shape)
+                # print('train outputs', outputs)
+                # print('train outputs>>?????>><<><><', outputs.shape)
+                # print('train 1labels size?????', labels)
                 loss = F.mse_loss(outputs, labels)
                 # print('loss', loss)
                 loss.backward()
@@ -108,7 +108,8 @@ class TracknetTrainer(NNTrainer):
                     positions = data['POS']
                     outputs = self.model(inputs)
                     # print(outputs)
-                    outputs = outputs.float() + positions.float()
+                    # outputs = outputs.float() + positions.float()
+                    outputs = outputs.float()
                     # loss = torch.dist(outputs, labels, p=1)
 
                     # outputs_input_dis = outputs - data['POS'].float()
@@ -119,8 +120,18 @@ class TracknetTrainer(NNTrainer):
                     # print(labels[0])
                     # loss = F.cosine_similarity(outputs_input_dis, label_input_dis, dim=1)
                     # use MSE to calculate loss
+                    # print('outputs', outputs)
+                    # print('outputs>>>>>>>>>>>>', outputs.shape)
+                    # print('labels size!!!!!!!!', labels)
+                    print('outputs', outputs)
+                    print('labels', labels)
                     loss = F.mse_loss(outputs, labels)
-                    current_loss = sum(loss) / float(len(loss))
+                    # print('loss', loss)
+                    # print('loss shape', loss.shape)
+                    # print('Sumloss', sum(loss))
+                    # print('float len loss', float(len(loss)))
+                    # current_loss = sum(loss) / float(len(loss))
+                    current_loss = loss
                     img_loss += current_loss
                     all_loss += current_loss
 
@@ -156,10 +167,10 @@ class TracknetTrainer(NNTrainer):
                     print(img_obj.file_name + ' LOSS: ', all_loss / total_images)
                     print('couter', self.counter)
                     # self.loss_sum[re.findall(img_obj.file_name)] += all_loss / total_images
-                    self.counter += 1
-                    print('self.counter % 4', self.counter % 4)
-                    self.loss_sum[self.counter % 4].append(all_loss / total_images)
-                    print(self.loss_sum)
+                    # self.counter += 1
+                    # print('self.counter % 4', self.counter % 4)
+                    # self.loss_sum[self.counter % 4].append(all_loss / total_images)
+                    # print(self.loss_sum)
         print('loss_sum', self.loss_sum)
         # lines = plt.plot(self.loss_sum)
         # plt.setp(lines, color='r', linewidth=2.0)

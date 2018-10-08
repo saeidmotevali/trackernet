@@ -57,6 +57,7 @@ class PatchesGenerator(Generator):
             b_pos_output = V[b, :]
 
             u_pos_input = u_pos_input.astype(np.int)
+            # print('u_pos_input + b_pos_output', u_pos_input[0], b_pos_output[0])
             b_pos_output = b_pos_output.astype(np.int)
             # print('----------------<<<<<<>>>>>>>>---------------')
             # # print(u_pos_input - b_pos_output)
@@ -64,8 +65,9 @@ class PatchesGenerator(Generator):
             # print(b_pos_output.shape)
             for (i, j), output in zip(u_pos_input, b_pos_output - u_pos_input):
                 # print('>>>>>>>>>>>', i, j, output)
-                # print('<<<<<<<<<<<', u_pos_input)
-                # print('<<<>>>>', b_pos_output)
+                # print('<<>>???<<>>diff', b_pos_output - u_pos_input)
+                # print('<<<<<<<<<<<input', u_pos_input)
+                # print('<<<>>>>output', b_pos_output)
                 row_from, row_to = i - self.k_half, i + self.k_half + 1
                 col_from, col_to = j - self.k_half, j + self.k_half + 1
                 if row_from < 0 or col_from < 0:
@@ -92,5 +94,6 @@ class PatchesGenerator(Generator):
 
         if self.transforms is not None:
             img_tensor = self.transforms(img_tensor)
-
+        # print('inputs', img_tensor)
+        # print('out', out)
         return {'IDs': ID, 'POS': np.array([i, j]), 'inputs': np.array(img_tensor), 'labels': torch.FloatTensor(out)}
