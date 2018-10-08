@@ -135,7 +135,7 @@ class NNTrainer:
 
         if os.path.isfile(log_file):
             print('### CRITICAL!!! ' + log_file + '" already exists. Rename or delete to proceed.')
-            sys.exit(1)
+            # sys.exit(1)
 
         file = open(log_file, 'w')
         NNTrainer.flush(file, 'ID,TYPE,EPOCH,BATCH,PRECISION,RECALL,F1,ACCURACY,LOSS')

@@ -9,14 +9,14 @@ DRIVE = {
         'batch_size': 16,
         'epochs': 1,
         'learning_rate': 0.001,
-        'patch_shape': (51, 51),
+        'patch_shape': (15, 15),
         'use_gpu': False,
         'distribute': False,
         'shuffle': True,
         'checkpoint_file': 'TrackNet-DRIVE.chk.tar',
         'log_frequency': 50,
         'validation_frequency': 1,
-        'mode': 'test',
+        'mode': 'train',
         'parallel_trained': False
     },
     'Dirs': {
